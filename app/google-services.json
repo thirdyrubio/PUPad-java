@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "999915519325",
+    "project_id": "pupad-alpha-test",
+    "storage_bucket": "pupad-alpha-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999915519325:android:7f7696bde285bc1a4abcb4",
+        "android_client_info": {
+          "package_name": "com.rubio.pupad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDanKBC92DAlRAZ4vsuiUcJYGWeg8bcZW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
