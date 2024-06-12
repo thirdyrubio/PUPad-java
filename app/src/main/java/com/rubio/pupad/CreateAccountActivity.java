@@ -57,8 +57,6 @@ public class CreateAccountActivity extends AppCompatActivity {
         }
 
         createAccountInFirebase(email,password);
-
-
     }
 
     void createAccountInFirebase(String email, String password){
@@ -100,7 +98,11 @@ public class CreateAccountActivity extends AppCompatActivity {
             return false;
         }
         if(password.length()<6){
-            passwordEditText.setError("Password length is invalid");
+            passwordEditText.setError("Password must consist of 6 characters above");
+            return false;
+        }
+        if (!isValidPassword(password)) {
+            passwordEditText.setError("Password must contain uppercase, lowercase, number, and special character");
             return false;
         }
         if(!password.equals(confirmPassword)){
@@ -108,6 +110,13 @@ public class CreateAccountActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+    private boolean isValidPassword(String password) {
+        boolean hasUppercase = !password.equals(password.toLowerCase());
+        boolean hasLowercase = !password.equals(password.toUpperCase());
+        boolean hasDigit = password.matches(".*\\d.*");
+        boolean hasSpecialChar = password.matches(".*[~!@#$%^&*()_+=|<>?{}\\[\\]~-].*");
 
+        return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
     }
 }
