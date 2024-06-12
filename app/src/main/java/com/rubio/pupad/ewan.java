@@ -43,7 +43,7 @@ public class ewan extends AppCompatActivity {
     }
 
     void showMenu(){
-        PopupMenu popupMenu = new PopupMenu(ewan.this,menuBtn);
+        PopupMenu popupMenu = new PopupMenu(ewan.this, menuBtn);
         popupMenu.getMenu().add("My Account");
         popupMenu.getMenu().add("Chatbot");
         popupMenu.getMenu().add("Logout");
@@ -51,13 +51,18 @@ public class ewan extends AppCompatActivity {
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                if(menuItem.getTitle()=="Logout"){
-                    FirebaseAuth.getInstance().signOut();
-                    startActivity(new Intent(ewan.this,LoginActivity.class));
-                    finish();
-                    return true;
+                switch (menuItem.getTitle().toString()) {
+                    case "Logout":
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(ewan.this, LoginActivity.class));
+                        finish();
+                        return true;
+                    case "Chatbot":
+                        startActivity(new Intent(ewan.this, openaiActivity.class));
+                        return true;
+                    default:
+                        return false;
                 }
-                return false;
             }
         });
     }

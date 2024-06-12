@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PUPad">
         <activity
+            android:name=".openaiActivity"
+            android:exported="false" />
+        <activity
             android:name=".NoteDetailsActivity"
             android:exported="false" />
         <activity
