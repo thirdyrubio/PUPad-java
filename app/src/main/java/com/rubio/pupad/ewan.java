@@ -60,6 +60,9 @@ public class ewan extends AppCompatActivity {
                     case "Chatbot":
                         startActivity(new Intent(ewan.this, openaiActivity.class));
                         return true;
+                    case "My Account":
+                        startActivity(new Intent(ewan.this, MyAccountActivity.class));
+                        return true;
                     default:
                         return false;
                 }

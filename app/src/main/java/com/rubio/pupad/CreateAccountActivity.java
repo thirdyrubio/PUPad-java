@@ -21,10 +21,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class CreateAccountActivity extends AppCompatActivity {
 
-    EditText emailEditText, passwordEditText, confirmPasswordEditText;
+    EditText emailEditText, passwordEditText, confirmPasswordEditText, nameEditText;
     Button createAccountBtn;
     ProgressBar progressBar;
     TextView loginBtnTextView;
@@ -41,25 +44,27 @@ public class CreateAccountActivity extends AppCompatActivity {
         createAccountBtn = findViewById(R.id.create_account_btn);
         progressBar = findViewById(R.id.progrss_bar);
         loginBtnTextView = findViewById(R.id.login_text_view_btn);
+        nameEditText = findViewById(R.id.name_edit_text);
 
         createAccountBtn.setOnClickListener(v-> createAccount());
         loginBtnTextView.setOnClickListener(v-> finish());
     }
 
     void createAccount() {
+        String name = nameEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String confirmPassword = confirmPasswordEditText.getText().toString();
 
-        boolean isValidated = validateData(email,password,confirmPassword);
+        boolean isValidated = validateData(name, email, password, confirmPassword);
         if(!isValidated){
             return;
         }
 
-        createAccountInFirebase(email,password);
+        createAccountInFirebase(name,email,password);
     }
 
-    void createAccountInFirebase(String email, String password){
+    void createAccountInFirebase(String name, String email, String password){
         changeInProgress(true);
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -69,6 +74,12 @@ public class CreateAccountActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         changeInProgress(false);
                         if (task.isSuccessful()){
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(name)
+                                            .build();
+                            user.updateProfile(profileUpdates);
+
                             Utility.showToast(CreateAccountActivity.this,"Successfully create account. Check your email to verify");
                             firebaseAuth.getCurrentUser().sendEmailVerification();
                             firebaseAuth.signOut();
@@ -91,7 +102,7 @@ public class CreateAccountActivity extends AppCompatActivity {
         }
     }
 
-    boolean validateData(String email, String password, String confirmPassword){
+    boolean validateData(String name, String email, String password, String confirmPassword){
 
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             emailEditText.setError("Email is invalid");
