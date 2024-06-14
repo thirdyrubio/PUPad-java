@@ -21,11 +21,11 @@ import com.google.firebase.firestore.DocumentReference;
 public class NoteDetailsActivity extends AppCompatActivity {
 
     EditText titleEditText, contentEditText;
-    ImageButton saveNoteBtn;
+    ImageButton saveNoteBtn, deleteNoteTextViewBtn;
     TextView pageTitleTextView;
     String title,content,docId;
     boolean isEditMode = false;
-    TextView deleteNoteTextViewBtn;
+
 
 
     @Override

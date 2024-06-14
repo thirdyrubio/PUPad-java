@@ -61,7 +61,7 @@ public class ewan extends AppCompatActivity {
                         startActivity(new Intent(ewan.this, openaiActivity.class));
                         return true;
                     case "My Account":
-                        startActivity(new Intent(ewan.this, MyAccountActivity.class));
+                        startActivity(new Intent(ewan.this, my_profile.class));
                         return true;
                     default:
                         return false;

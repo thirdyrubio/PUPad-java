@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".my_profile">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/my_primary"
+        android:id="@+id/toolbar"
+        app:titleTextColor="?attr/colorSurface"
+        app:titleCentered="true"/>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/progress"/>
+
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imageView"
+        android:layout_width="150sp"
+        android:layout_height="150sp"
+        android:layout_marginTop="40sp"
+        android:layout_below="@id/progress"
+        android:layout_centerHorizontal="true"
+        android:background="@color/my_primary"
+        android:src="@drawable/baseline_person_24"
+        app:shapeAppearanceOverlay="@style/circular"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/black"/>
+
+
+
+    <TextView
+        android:id="@+id/name_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/imageView"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/selectImage"
+        android:layout_below="@id/name_text_view"
+        android:layout_marginTop="20sp"
+        android:text="Select Image"/>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/selectImage"
+        android:layout_marginTop="5sp"
+        android:id="@+id/uploadImage"
+        android:text="Upload Image"
+        android:enabled="false"/>
+
+
+
+</RelativeLayout>

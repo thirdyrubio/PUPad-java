@@ -34,6 +34,16 @@
             app:tint="@color/pink_peach"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
+        <ImageButton
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:id="@+id/delete_note_text_view_btn"
+            android:src="@drawable/baseline_delete_24"
+            android:layout_toStartOf="@id/save_note_btn"
+            android:layout_centerVertical="true"
+            app:tint="@color/pink_peach"
+            android:visibility="gone"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
     </RelativeLayout>
 
@@ -71,17 +81,5 @@
             android:textColor="@color/black"/>
 
     </LinearLayout>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/delete_note_text_view_btn"
-        android:text="Delete Note"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:textSize="18sp"
-        android:visibility="gone"
-        android:textColor="#FF0000"/>
-
 
 </RelativeLayout>
