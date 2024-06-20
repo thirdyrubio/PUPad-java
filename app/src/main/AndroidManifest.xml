@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PUPad">
         <activity
+            android:name=".profilesettings"
+            android:exported="false" />
+        <activity
             android:name=".my_profile"
             android:exported="false" />
         <activity
