@@ -1,18 +1,14 @@
 package com.rubio.pupad;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,13 +33,11 @@ public class openaiActivity extends AppCompatActivity {
     TextView welcomeTextView;
     EditText messageEditText;
     ImageButton sendButton;
+    ImageButton backButton; // Added ImageButton for back button
     List<Message> messageList;
     MessageAdapter messageAdapter;
-    public static final MediaType JSON
-            = MediaType.get("application/json");
+    public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     OkHttpClient client = new OkHttpClient();
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +49,7 @@ public class openaiActivity extends AppCompatActivity {
         welcomeTextView = findViewById(R.id.welcome_text);
         messageEditText = findViewById(R.id.message_edit_text);
         sendButton = findViewById(R.id.send_btn);
+        backButton = findViewById(R.id.back_button); // Initialize back button
 
         messageAdapter = new MessageAdapter(messageList);
         recyclerView.setAdapter(messageAdapter);
@@ -62,68 +57,79 @@ public class openaiActivity extends AppCompatActivity {
         llm.setStackFromEnd(true);
         recyclerView.setLayoutManager(llm);
 
-        sendButton.setOnClickListener((v)->{
+        sendButton.setOnClickListener(v -> {
             String question = messageEditText.getText().toString().trim();
-            addToChat(question,Message.SENT_BY_ME);
+            addToChat(question, Message.SENT_BY_ME);
             messageEditText.setText("");
             callAPI(question);
             welcomeTextView.setVisibility(View.GONE);
         });
-    }
 
-    void addToChat(String message, String sentBy){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                messageList.add(new Message(message, sentBy));
-                messageAdapter.notifyDataSetChanged();
-                recyclerView.smoothScrollToPosition(messageAdapter.getItemCount());
-            }
+        backButton.setOnClickListener(v -> {
+            // Navigate back to EwanActivity
+            Intent intent = new Intent(openaiActivity.this, ewan.class);
+            startActivity(intent);
+            finish(); // Finish current activity so back button won't come back here
         });
     }
 
-    void addResponse(String response){
-        addToChat(response,Message.SENT_BY_BOT);
+    void addToChat(String message, String sentBy) {
+        runOnUiThread(() -> {
+            messageList.add(new Message(message, sentBy));
+            messageAdapter.notifyDataSetChanged();
+            recyclerView.smoothScrollToPosition(messageAdapter.getItemCount());
+        });
     }
 
-    void callAPI(String question){
+    void addResponse(String response) {
+        addToChat(response, Message.SENT_BY_BOT);
+    }
 
-        JSONObject jsonbody = new JSONObject();
+    void callAPI(String question) {
+        JSONObject jsonBody = new JSONObject();
         try {
-            jsonbody.put("model","gpt-3.5-turbo-0125");
-            jsonbody.put("prompt",question);
-            jsonbody.put("max_tokens", 4000);
-            jsonbody.put("temperature",0);
+            jsonBody.put("model", "gpt-3.5-turbo");
+            JSONArray messages = new JSONArray();
+            JSONObject message = new JSONObject();
+            message.put("role", "user");
+            message.put("content", question);
+            messages.put(message);
+            jsonBody.put("messages", messages);
+            jsonBody.put("max_tokens", 4000);
+            jsonBody.put("temperature", 0);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            addResponse("Failed to create JSON body.");
+            return;
         }
-        RequestBody body = RequestBody.create(jsonbody.toString(),JSON);
+
+        RequestBody body = RequestBody.create(jsonBody.toString(), JSON);
         Request request = new Request.Builder()
-                .url("https://api.openai.com/v1/completions")
-                .header("Authorization","Bearer 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")
+                .url("https://api.openai.com/v1/chat/completions")
+                .header("Authorization", "Bearer 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")
                 .post(body)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                addResponse("Failed to load response due to"+e.getMessage());
+                addResponse("Failed to load response due to " + e.getMessage());
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if(response.isSuccessful()){
-                    JSONObject jsonObject = null;
+                if (response.isSuccessful()) {
                     try {
-                        jsonObject = new JSONObject(response.body().string());
-                        JSONArray jsonArray = jsonObject.getJSONArray("choises");
-                        String result = jsonArray.getJSONObject(0).getString("content");
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray choices = jsonObject.getJSONArray("choices");
+                        String result = choices.getJSONObject(0).getJSONObject("message").getString("content");
                         addResponse(result.trim());
                     } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
+                        addResponse("Failed to parse response.");
                     }
-                }else {
-                    addResponse("Failed to load response due to"+response.body().string());
+                } else {
+                    addResponse("Failed to load response: " + response.body().string());
                 }
             }
         });

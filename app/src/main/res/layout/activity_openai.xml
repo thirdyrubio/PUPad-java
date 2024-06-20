@@ -7,12 +7,36 @@
     android:layout_height="match_parent"
     tools:context=".openaiActivity">
 
+    <!-- Material Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="?attr/colorPrimary">
+
+        <!-- Back Button inside Toolbar -->
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start"
+        android:padding="8dp"
+        android:src="@drawable/baseline_arrow_back_24"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        android:layout_marginStart="0dp" />
+
+
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/recycler_view"
         android:layout_above="@id/bottom_layout"
-        />
+        android:layout_below="@id/toolbar" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,8 +44,7 @@
         android:layout_centerInParent="true"
         android:text="Welcome to PUPad openAI\nTry it out now"
         android:gravity="center"
-        android:textSize="23dp"
-        />
+        android:textSize="23dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -29,6 +52,7 @@
         android:layout_alignParentBottom="true"
         android:padding="8dp"
         android:id="@+id/bottom_layout">
+
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,8 +61,8 @@
             android:hint="Write here"
             android:padding="16dp"
             android:layout_toLeftOf="@id/send_btn"
-            android:background="@drawable/rounded_corner"
-            />
+            android:background="@drawable/rounded_corner" />
+
         <ImageButton
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -48,11 +72,7 @@
             android:layout_marginStart="10dp"
             android:padding="8dp"
             android:src="@drawable/baseline_east_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            />
-
-
+            android:background="?attr/selectableItemBackgroundBorderless" />
     </RelativeLayout>
-
 
 </RelativeLayout>
