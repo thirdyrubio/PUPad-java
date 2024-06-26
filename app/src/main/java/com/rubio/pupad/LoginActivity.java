@@ -3,12 +3,16 @@ package com.rubio.pupad;
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,19 +22,16 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
@@ -39,15 +40,13 @@ public class LoginActivity extends AppCompatActivity {
     EditText emailEditText, passwordEditText;
     Button loginBtn;
     ProgressBar progressBar;
-    TextView createAccountBtnTextView;
+    TextView createAccountBtnTextView, forgotPassword;
     Button biometricsBtn;
     SharedPreferences sharedPreferences;
-
 
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +60,14 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progrss_bar);
         createAccountBtnTextView = findViewById(R.id.create_account_text_view_btn);
         biometricsBtn = findViewById(R.id.biometrics_btn);
+        forgotPassword = findViewById(R.id.forgot_password);
 
-        loginBtn.setOnClickListener((v)-> loginUser());
-        createAccountBtnTextView.setOnClickListener((v)->startActivity(new Intent(LoginActivity.this,CreateAccountActivity.class)));
+        loginBtn.setOnClickListener((v) -> loginUser());
+        createAccountBtnTextView.setOnClickListener((v) -> startActivity(new Intent(LoginActivity.this, CreateAccountActivity.class)));
 
         sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
-        boolean isLogin=sharedPreferences.getBoolean("isLogin",false);
-        if (isLogin)
-        {
-
+        boolean isLogin = sharedPreferences.getBoolean("isLogin", false);
+        if (isLogin) {
             biometricsBtn.setVisibility(View.VISIBLE);
         }
 
@@ -79,10 +77,10 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("MY_APP_TAG", "App can authenticate using biometrics.");
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                Toast.makeText(this,"Biometrics sensor doesn't exist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Biometrics sensor doesn't exist", Toast.LENGTH_SHORT).show();
                 break;
             case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                Toast.makeText(this,"Biometrics sensor not available", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Biometrics sensor not available", Toast.LENGTH_SHORT).show();
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
                 // Prompts the user to create credentials that your app accepts.
@@ -110,8 +108,8 @@ public class LoginActivity extends AppCompatActivity {
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
 
-                String email=sharedPreferences.getString("email","");
-                String password=sharedPreferences.getString("password","");
+                String email = sharedPreferences.getString("email", "");
+                String password = sharedPreferences.getString("password", "");
 
                 Log.d("MY_APP_TAG", "Retrieved email: " + email);
                 Log.d("MY_APP_TAG", "Retrieved password: " + password);
@@ -139,76 +137,123 @@ public class LoginActivity extends AppCompatActivity {
                 .setNegativeButtonText("Use account password")
                 .build();
 
-
         biometricsBtn.setOnClickListener(view -> {
             biometricPrompt.authenticate(promptInfo);
         });
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showForgotPasswordDialog();
+            }
+        });
     }
 
-
-
-
-    void loginUser(){
+    void loginUser() {
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        boolean isValidated = validateData(email,password);
-        if(!isValidated){
+        boolean isValidated = validateData(email, password);
+        if (!isValidated) {
             return;
         }
 
-        loginAccountInFirebase(email,password);
-
+        loginAccountInFirebase(email, password);
     }
 
-    void loginAccountInFirebase(String email, String password){
+    void loginAccountInFirebase(String email, String password) {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         changeInProgress(true);
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 changeInProgress(false);
-                if (task.isSuccessful()){
-                    if (firebaseAuth.getCurrentUser().isEmailVerified()){
+                if (task.isSuccessful()) {
+                    if (firebaseAuth.getCurrentUser().isEmailVerified()) {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean("isLogin", true);
                         editor.putString("email", email);
                         editor.putString("password", password);
                         editor.apply();
 
-                        startActivity(new Intent(LoginActivity.this,ewan.class));
+                        startActivity(new Intent(LoginActivity.this, ewan.class));
                         finish();
-                    }else {
-                        Utility.showToast(LoginActivity.this,"Email not verified. Please verify your email first.");
+                    } else {
+                        Utility.showToast(LoginActivity.this, "Email not verified. Please verify your email first.");
                     }
-                }else {
-                    Utility.showToast(LoginActivity.this,task.getException().getLocalizedMessage());
+                } else {
+                    Utility.showToast(LoginActivity.this, task.getException().getLocalizedMessage());
                 }
             }
         });
     }
 
-    void changeInProgress(boolean inProgress){
-        if(inProgress){
+    void changeInProgress(boolean inProgress) {
+        if (inProgress) {
             progressBar.setVisibility(View.VISIBLE);
             loginBtn.setVisibility(View.GONE);
-        }else {
+        } else {
             progressBar.setVisibility(View.GONE);
             loginBtn.setVisibility(View.VISIBLE);
         }
     }
 
-    boolean validateData(String email, String password){
-
-        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+    boolean validateData(String email, String password) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditText.setError("Email is invalid");
             return false;
         }
-        if(password.length()<6){
+        if (password.length() < 6) {
             passwordEditText.setError("Password length is invalid");
             return false;
         }
         return true;
+    }
 
+    private void showForgotPasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        View dialogView = LayoutInflater.from(LoginActivity.this).inflate(R.layout.dialog_forgot, null);
+        EditText emailBox = dialogView.findViewById(R.id.emailBox);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        dialogView.findViewById(R.id.btnReset).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String userEmail = emailBox.getText().toString();
+
+                if (TextUtils.isEmpty(userEmail) || !Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
+                    Toast.makeText(LoginActivity.this, "Enter a valid email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                FirebaseAuth.getInstance().sendPasswordResetEmail(userEmail)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(LoginActivity.this, "Password reset email sent to " + userEmail, Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Failed to send password reset email: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        });
+
+        dialogView.findViewById(R.id.btnCancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+
+        dialog.show();
     }
 }
