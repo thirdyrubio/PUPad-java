@@ -6,11 +6,7 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,23 +22,26 @@ public class ewan extends AppCompatActivity {
     ImageButton menuBtn;
     NoteAdapter noteAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); // Set layout for this activity
 
+        // Initialize UI elements
         addNoteBtn = findViewById(R.id.add_note_btn);
         recyclerView = findViewById(R.id.recycler_view);
         menuBtn = findViewById(R.id.menu_btn);
 
+        // Set click listeners for buttons
+        addNoteBtn.setOnClickListener((v) -> startActivity(new Intent(ewan.this, NoteDetailsActivity.class)));
+        menuBtn.setOnClickListener((v) -> showMenu());
 
-        addNoteBtn.setOnClickListener((v)-> startActivity(new Intent(ewan.this,NoteDetailsActivity.class)));
-        menuBtn.setOnClickListener((v)->showMenu());
+        // Setup RecyclerView
         setupRecyclerView();
     }
 
-    void showMenu(){
+    // Method to show popup menu for options like My Account, Chatbot, and Logout
+    void showMenu() {
         PopupMenu popupMenu = new PopupMenu(ewan.this, menuBtn);
         popupMenu.getMenu().add("My Account");
         popupMenu.getMenu().add("Chatbot");
@@ -53,14 +52,17 @@ public class ewan extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getTitle().toString()) {
                     case "Logout":
+                        // Logout user and navigate to LoginActivity
                         FirebaseAuth.getInstance().signOut();
                         startActivity(new Intent(ewan.this, LoginActivity.class));
-                        finish();
+                        finish(); // Finish current activity
                         return true;
                     case "Chatbot":
+                        // Navigate to Chatbot activity
                         startActivity(new Intent(ewan.this, openaiActivity.class));
                         return true;
                     case "My Account":
+                        // Navigate to My Account settings
                         startActivity(new Intent(ewan.this, profilesettings.class));
                         return true;
                     default:
@@ -70,30 +72,32 @@ public class ewan extends AppCompatActivity {
         });
     }
 
-    void setupRecyclerView(){
-        Query query = Utility.getCollectionReferenceForNotes().orderBy("timestamp",Query.Direction.DESCENDING);
+    // Method to setup RecyclerView for displaying notes
+    void setupRecyclerView() {
+        // Query Firestore for notes ordered by timestamp descending
+        Query query = Utility.getCollectionReferenceForNotes().orderBy("timestamp", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<Note> options = new FirestoreRecyclerOptions.Builder<Note>()
-                .setQuery(query,Note.class).build();
+                .setQuery(query, Note.class).build();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        noteAdapter = new NoteAdapter(options,this);
+        noteAdapter = new NoteAdapter(options, this);
         recyclerView.setAdapter(noteAdapter);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        noteAdapter.startListening();
+        noteAdapter.startListening(); // Start listening for Firestore updates
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        noteAdapter.stopListening();
+        noteAdapter.stopListening(); // Stop listening for Firestore updates
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        noteAdapter.notifyDataSetChanged();
+        noteAdapter.notifyDataSetChanged(); // Notify adapter of data changes
     }
 }

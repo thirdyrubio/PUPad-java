@@ -45,26 +45,30 @@ public class openaiActivity extends AppCompatActivity {
         setContentView(R.layout.activity_openai);
         messageList = new ArrayList<>();
 
+        // Initialize views
         recyclerView = findViewById(R.id.recycler_view);
         welcomeTextView = findViewById(R.id.welcome_text);
         messageEditText = findViewById(R.id.message_edit_text);
         sendButton = findViewById(R.id.send_btn);
         backButton = findViewById(R.id.back_button); // Initialize back button
 
+        // Set up RecyclerView
         messageAdapter = new MessageAdapter(messageList);
         recyclerView.setAdapter(messageAdapter);
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setStackFromEnd(true);
+        llm.setStackFromEnd(true); // Display items from bottom
         recyclerView.setLayoutManager(llm);
 
+        // Send button click listener
         sendButton.setOnClickListener(v -> {
             String question = messageEditText.getText().toString().trim();
-            addToChat(question, Message.SENT_BY_ME);
-            messageEditText.setText("");
-            callAPI(question);
-            welcomeTextView.setVisibility(View.GONE);
+            addToChat(question, Message.SENT_BY_ME); // Add user message to chat
+            messageEditText.setText(""); // Clear message input
+            callAPI(question); // Call OpenAI API with user question
+            welcomeTextView.setVisibility(View.GONE); // Hide welcome text once user interacts
         });
 
+        // Back button click listener
         backButton.setOnClickListener(v -> {
             // Navigate back to EwanActivity
             Intent intent = new Intent(openaiActivity.this, ewan.class);
@@ -73,18 +77,21 @@ public class openaiActivity extends AppCompatActivity {
         });
     }
 
+    // Add a message to the chat
     void addToChat(String message, String sentBy) {
         runOnUiThread(() -> {
             messageList.add(new Message(message, sentBy));
-            messageAdapter.notifyDataSetChanged();
-            recyclerView.smoothScrollToPosition(messageAdapter.getItemCount());
+            messageAdapter.notifyDataSetChanged(); // Notify adapter of data change
+            recyclerView.smoothScrollToPosition(messageAdapter.getItemCount()); // Scroll to last message
         });
     }
 
+    // Add response from OpenAI to the chat
     void addResponse(String response) {
-        addToChat(response, Message.SENT_BY_BOT);
+        addToChat(response, Message.SENT_BY_BOT); // Add bot response to chat
     }
 
+    // Call OpenAI API with user question
     void callAPI(String question) {
         JSONObject jsonBody = new JSONObject();
         try {

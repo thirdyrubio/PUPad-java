@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -51,9 +52,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
+        EdgeToEdge.enable(this); // Enable edge-to-edge display (if supported)
+        setContentView(R.layout.activity_login); // Set layout for this activity
 
+        // Initialize UI elements
         emailEditText = findViewById(R.id.email_edit_text);
         passwordEditText = findViewById(R.id.password_edit_text);
         loginBtn = findViewById(R.id.login_btn);
@@ -62,15 +64,18 @@ public class LoginActivity extends AppCompatActivity {
         biometricsBtn = findViewById(R.id.biometrics_btn);
         forgotPassword = findViewById(R.id.forgot_password);
 
+        // Set click listeners for buttons
         loginBtn.setOnClickListener((v) -> loginUser());
         createAccountBtnTextView.setOnClickListener((v) -> startActivity(new Intent(LoginActivity.this, CreateAccountActivity.class)));
 
+        // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
         boolean isLogin = sharedPreferences.getBoolean("isLogin", false);
         if (isLogin) {
-            biometricsBtn.setVisibility(View.VISIBLE);
+            biometricsBtn.setVisibility(View.VISIBLE); // Show biometrics button if user is logged in
         }
 
+        // Initialize BiometricPrompt
         BiometricManager biometricManager = BiometricManager.from(this);
         switch (biometricManager.canAuthenticate(BIOMETRIC_STRONG | DEVICE_CREDENTIAL)) {
             case BiometricManager.BIOMETRIC_SUCCESS:
@@ -91,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                 break;
         }
 
+        // Executor for BiometricPrompt
         executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(LoginActivity.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
@@ -131,16 +137,19 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        // PromptInfo for BiometricPrompt
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Biometric login for my app")
                 .setSubtitle("Log in using your biometric credential")
                 .setNegativeButtonText("Use account password")
                 .build();
 
+        // Click listener for biometrics button
         biometricsBtn.setOnClickListener(view -> {
             biometricPrompt.authenticate(promptInfo);
         });
 
+        // Click listener for forgot password TextView
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,6 +158,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Method to handle user login
     void loginUser() {
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
@@ -161,23 +171,25 @@ public class LoginActivity extends AppCompatActivity {
         loginAccountInFirebase(email, password);
     }
 
+    // Method to authenticate user credentials with Firebase
     void loginAccountInFirebase(String email, String password) {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        changeInProgress(true);
+        changeInProgress(true); // Show progress bar
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                changeInProgress(false);
+                changeInProgress(false); // Hide progress bar
                 if (task.isSuccessful()) {
                     if (firebaseAuth.getCurrentUser().isEmailVerified()) {
+                        // Save login status and credentials to SharedPreferences
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean("isLogin", true);
                         editor.putString("email", email);
                         editor.putString("password", password);
                         editor.apply();
 
-                        startActivity(new Intent(LoginActivity.this, ewan.class));
-                        finish();
+                        startActivity(new Intent(LoginActivity.this, ewan.class)); // Navigate to main activity
+                        finish(); // Finish current activity
                     } else {
                         Utility.showToast(LoginActivity.this, "Email not verified. Please verify your email first.");
                     }
@@ -188,16 +200,18 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Method to toggle progress UI elements
     void changeInProgress(boolean inProgress) {
         if (inProgress) {
-            progressBar.setVisibility(View.VISIBLE);
-            loginBtn.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE); // Show progress bar
+            loginBtn.setVisibility(View.GONE); // Hide login button
         } else {
-            progressBar.setVisibility(View.GONE);
-            loginBtn.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE); // Hide progress bar
+            loginBtn.setVisibility(View.VISIBLE); // Show login button
         }
     }
 
+    // Method to validate user input data
     boolean validateData(String email, String password) {
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditText.setError("Email is invalid");
@@ -210,6 +224,7 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
+    // Method to show forgot password dialog
     private void showForgotPasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
         View dialogView = LayoutInflater.from(LoginActivity.this).inflate(R.layout.dialog_forgot, null);
@@ -251,9 +266,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0)); // Set transparent background
         }
 
-        dialog.show();
+        dialog.show(); // Show dialog
     }
 }
