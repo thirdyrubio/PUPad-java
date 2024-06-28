@@ -41,6 +41,8 @@ public class profilesettings extends AppCompatActivity {
     private TextView nameTextView;
     private ImageButton selectImage;
 
+    ImageButton backButton;
+
     EditText nameEditText, newPasswordEditText, confirmPasswordEditText;
     Button updateNameButton, updatePasswordButton;
 
@@ -84,6 +86,7 @@ public class profilesettings extends AppCompatActivity {
         newPasswordEditText = findViewById(R.id.new_password_edit_text);
         confirmPasswordEditText = findViewById(R.id.confirm_password_edit_text);
         updatePasswordButton = findViewById(R.id.update_password_button);
+        backButton = findViewById(R.id.back_button); // Initialize back button
 
         // Fetch and display the current user's name
         fetchAndDisplayUserName();
@@ -97,6 +100,13 @@ public class profilesettings extends AppCompatActivity {
                 intent.setType("image/*");
                 activityResultLauncher.launch(intent);
             }
+        });
+
+        backButton.setOnClickListener(v -> {
+            // Navigate back to EwanActivity
+            Intent intent = new Intent(profilesettings.this, ewan.class);
+            startActivity(intent);
+            finish(); // Finish current activity so back button won't come back here
         });
 
         // Upload image button click listener
