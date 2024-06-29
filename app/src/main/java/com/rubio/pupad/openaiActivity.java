@@ -1,32 +1,33 @@
 package com.rubio.pupad;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
+        import android.content.Intent;
+        import android.os.Bundle;
+        import android.view.View;
+        import android.widget.EditText;
+        import android.widget.ImageButton;
+        import android.widget.TextView;
+        import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+        import androidx.annotation.NonNull;
+        import androidx.appcompat.app.AppCompatActivity;
+        import androidx.recyclerview.widget.LinearLayoutManager;
+        import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+        import org.json.JSONArray;
+        import org.json.JSONException;
+        import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+        import java.io.IOException;
+        import java.util.ArrayList;
+        import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+        import okhttp3.Call;
+        import okhttp3.Callback;
+        import okhttp3.MediaType;
+        import okhttp3.OkHttpClient;
+        import okhttp3.Request;
+        import okhttp3.RequestBody;
+        import okhttp3.Response;
 
 public class openaiActivity extends AppCompatActivity {
     RecyclerView recyclerView;
@@ -62,10 +63,15 @@ public class openaiActivity extends AppCompatActivity {
         // Send button click listener
         sendButton.setOnClickListener(v -> {
             String question = messageEditText.getText().toString().trim();
-            addToChat(question, Message.SENT_BY_ME); // Add user message to chat
-            messageEditText.setText(""); // Clear message input
-            callAPI(question); // Call OpenAI API with user question
-            welcomeTextView.setVisibility(View.GONE); // Hide welcome text once user interacts
+            if (question.isEmpty()) {
+                // Show error message if text field is blank
+                Toast.makeText(openaiActivity.this, "Message cannot be blank", Toast.LENGTH_SHORT).show();
+            } else {
+                addToChat(question, Message.SENT_BY_ME); // Add user message to chat
+                messageEditText.setText(""); // Clear message input
+                callAPI(question); // Call OpenAI API with user question
+                welcomeTextView.setVisibility(View.GONE); // Hide welcome text once user interacts
+            }
         });
 
         // Back button click listener
@@ -93,6 +99,7 @@ public class openaiActivity extends AppCompatActivity {
 
     // Call OpenAI API with user question
     void callAPI(String question) {
+
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("model", "gpt-3.5-turbo");
@@ -113,7 +120,7 @@ public class openaiActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(jsonBody.toString(), JSON);
         Request request = new Request.Builder()
                 .url("https://api.openai.com/v1/chat/completions")
-                .header("Authorization", "Bearer sk-proj-6VidhtLDBDEmiqeGuJDDT3BlbkFJDF09jEFhRutoVxmtrkzN")
+                .header("Authorization", "Bearer sk-proj-iyNUfiuwJeR1Uqn5RFZoT3BlbkFJkXfg9EMZGRDPTlaVzvMF")
                 .post(body)
                 .build();
 
@@ -136,7 +143,7 @@ public class openaiActivity extends AppCompatActivity {
                         addResponse("Failed to parse response.");
                     }
                 } else {
-                    addResponse("Failed to load response: " + response.body().string());
+                    addResponse("Failed to load response: " + response.message());
                 }
             }
         });
