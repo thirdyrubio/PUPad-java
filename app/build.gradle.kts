@@ -49,4 +49,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation ("androidx.biometric:biometric:1.1.0")
     implementation("com.github.bumptech.glide:glide:4.15.1")
+    implementation ("androidx.security:security-crypto:1.1.0-alpha03")
+
 }
